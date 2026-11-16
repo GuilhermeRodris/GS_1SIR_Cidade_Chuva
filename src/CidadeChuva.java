@@ -2,15 +2,13 @@ import java.util.Scanner;
 import java.util.Random;
 
 public class CidadeChuva {
-    //-------------------- Organiza as etapas da simulacao --------------------//
+    //-------------------- Organiza as etapas da simulação --------------------//
     public static void main(String[] args) {
-        // Equipe: executa a geracao, os passos e o relatorio do bairro.
+        // Equipe: executa a geração, os passos e o relatório do bairro.
         Scanner sc = new Scanner(System.in);
         int rm = somaRM(sc);
         if (rm == -1) {
-            System.out.println("Entrada encerrada antes de informar todos os RMs.");
-            sc.close();
-            return;
+            System.out.println("Entrada encerrada antes de informar todos os RMs (0_0)");
         }
         int[] parametros = calcularParametros(rm);
         int n = parametros[0], m = parametros[1], k = parametros[2];
@@ -20,94 +18,73 @@ public class CidadeChuva {
         int[][] lamina = gerarMatriz(gerador, n, m, 0, 10);
         int totalInicial = somar(lamina);
 
-        System.out.println("Parametros: N=" + n + " M=" + m + " K=" + k
-                + " L=" + limite + " ordem=" + ordem);
-        System.out.println("Altitude inicial (cm):");
+        System.out.println("Parâmetros: N = " + n + " M = " + m + " K = " + k
+                + " L = " + limite + " ordem = " + ordem);
+        System.out.println("Altitude inicial (cm): ");
         imprimir(altitude);
-        System.out.println("Lamina inicial (cm):");
+        System.out.println();
+        System.out.println("Lamina inicial (cm): ");
         imprimir(lamina);
+        System.out.println();
 
         for (int passo = 1; passo <= k; passo++) {
             lamina = simularPasso(altitude, lamina, ordem);
-            System.out.println("Lamina apos o passo " + passo + ":");
+            System.out.println("Lamina após o passo " + passo + ": ");
             imprimir(lamina);
             int totalAtual = somar(lamina);
-            System.out.println("Agua total: " + totalAtual);
+            System.out.println("Água total: " + totalAtual);
+            System.out.println();
             if (totalAtual != totalInicial) {
-                System.out.println("Erro: a quantidade total de agua mudou.");
-                sc.close();
-                return;
+                System.out.println("Erro a quantidade total de água mudou!");
             }
         }
 
         boolean[][] alerta = marcarAlerta(lamina, limite);
         int[] aguaPorLinha = somarPorLinha(lamina);
         int critica = linhaCritica(aguaPorLinha);
-        System.out.println("Mapa de alerta (# = alagado; . = normal):");
+        System.out.println("Mapa de alerta (# = alagado; . = normal): ");
         imprimirAlerta(alerta);
+        System.out.println();
         for (int i = 0; i < n; i++) {
             System.out.println("Linha " + i + ": " + aguaPorLinha[i] + " cm");
         }
-        System.out.println("Recomendacao: priorizar a inspecao da linha " + critica
-                + " e sinalizar os trechos em alerta, com rotas acessiveis alternativas.");
-        System.out.println("D1 e D2 pendentes: o material complementar nao define seus calculos.");
-        sc.close();
-
-        System.out.println("RESUMO RM=" + rm);
-        System.out.println("ALERTA=" + contarAlertas(alerta));
-        System.out.println("CRITICA=" + critica + " AGUA=" + aguaPorLinha[critica]);
-        // Equipe: nao atribui resultados inventados as questoes ausentes do PDF.
-        System.out.println("D1=PENDENTE D2=PENDENTE");
+        System.out.println();
+        System.out.println("Linha " + critica);
+        System.out.println("Resumo RM = " + rm);
+        System.out.println("Alerta = " + contarAlertas(alerta));
+        System.out.println("Crítica = " + critica + "| Água = " + aguaPorLinha[critica]);
     }
 
-    //-------------------- Registra e valida os RMs da equipe --------------------//
+//--------------------------------- Registra e valida os RMs da equipe --------------------
     public static int somaRM(Scanner sc) {
-        // Equipe: soma apenas RMs positivos e evita ultrapassar o limite de int.
         int quantidade = 0, soma = 0;
         while (quantidade < 1 || quantidade > 3) {
-            System.out.println("Informe a quantidade de integrantes (1 a 3):");
-            if (!sc.hasNext()) {
-                return -1;
-            }
-            if (sc.hasNextInt()) {
-                quantidade = sc.nextInt();
-            } else {
-                sc.next();
-            }
+            System.out.print("Informe a quantidade de RMs: ");
+           quantidade = sc.nextInt();
             if (quantidade < 1 || quantidade > 3) {
-                System.out.println("Quantidade invalida. Informe novamente!");
+                System.out.println("Quantidade invalida, informe novamente!");
             }
         }
         for (int i = 0; i < quantidade;) {
-            System.out.println("Informe o " + (i + 1) + " RM:");
-            if (!sc.hasNext()) {
-                return -1;
-            }
-            if (sc.hasNextInt()) {
-                int rm = sc.nextInt();
-                if (rm > 0 && rm <= Integer.MAX_VALUE - soma) {
+            System.out.print("Informe o " + (i + 1) + " RM: " );
+            int rm = sc.nextInt();
+            if (rm <= 0) {
+                System.out.println("Informe um número inteiro válido");
+
+            } else {
                     soma += rm;
                     i++;
-                } else {
-                    System.out.println("RM invalido ou soma acima do limite permitido.");
-                }
-            } else {
-                sc.next();
-                System.out.println("Informe um numero inteiro valido.");
             }
         }
         return soma;
     }
-
-    //-------------------- Calcula os parametros definidos pelo RM --------------------//
+//---------------------------- Calcula os parametros definidos pelo RM ----------------------------
     public static int[] calcularParametros(int rm) {
-        // Equipe: todas as divisoes usadas nas formulas sao inteiras.
         return new int[]{8 + rm % 3, 10 + (rm / 10) % 3,
                 4 + (rm / 100) % 3, 10 + 2 * (rm % 4), rm % 2};
     }
 
     public static int[][] gerarAltitude(Random gerador, int n, int m) {
-        // Equipe: gera o vale por linha e coluna usando o mesmo gerador da chuva.
         int[][] altitude = new int[n][m];
         for (int i = 0; i < n; i++) {
             int altitudeBase = 3 * Math.abs(i - n / 2);
@@ -130,9 +107,9 @@ public class CidadeChuva {
         return matriz;
     }
 
-    //-------------------- Utilitarios de matrizes --------------------//
+//------------------------------ Utilitários de matrizes -----------------------------
     public static int[][] copiar(int[][] matriz) {
-        // Equipe: copia cada valor para impedir alteracoes na matriz original.
+        // Equipe: copia cada valor para impedir alterações na matriz original.
         int[][] copia = new int[matriz.length][matriz[0].length];
         for (int i = 0; i < matriz.length; i++) {
             for (int j = 0; j < matriz[i].length; j++) {
@@ -162,7 +139,7 @@ public class CidadeChuva {
     }
 
     public static int somar(int[][] matriz) {
-        // Equipe: permite conferir a conservacao da agua em cada passo.
+        // Equipe: permite conferir a conservações da água em cada passo.
         int soma = 0;
         for (int i = 0; i < matriz.length; i++) {
             for (int j = 0; j < matriz[i].length; j++) {
@@ -172,9 +149,8 @@ public class CidadeChuva {
         return soma;
     }
 
-    //-------------------- Simula todas as decisoes ao mesmo tempo --------------------//
+//------------------------------------- Simula todas as decisões ao mesmo tempo -------------------------------------
     public static int[][] simularPasso(int[][] altitude, int[][] lamina, int ordem) {
-        // Equipe: le apenas lamina e acumula todas as transferencias em nova.
         int n = lamina.length, m = lamina[0].length;
         int[][] nova = copiar(lamina);
         int[] deslocamentoLinha, deslocamentoColuna;
@@ -196,7 +172,6 @@ public class CidadeChuva {
                         int vj = j + deslocamentoColuna[d];
                         if (dentro(vi, vj, n, m)) {
                             int nivel = altitude[vi][vj] + lamina[vi][vj];
-                            // Comparacao estrita preserva o primeiro vizinho em empates.
                             if (nivel < menor) {
                                 menor = nivel;
                                 destinoLinha = vi;
@@ -214,9 +189,9 @@ public class CidadeChuva {
         return nova;
     }
 
-    //-------------------- Identifica alertas e a linha critica --------------------//
+//------------------------------- Identifica alertas e a linha critica --------------------------------------
     public static boolean[][] marcarAlerta(int[][] lamina, int limite) {
-        // Equipe: o valor igual ao limite tambem representa alerta.
+
         boolean[][] alerta = new boolean[lamina.length][lamina[0].length];
         for (int i = 0; i < lamina.length; i++) {
             for (int j = 0; j < lamina[i].length; j++) {
@@ -227,7 +202,6 @@ public class CidadeChuva {
     }
 
     public static void imprimirAlerta(boolean[][] alerta) {
-        // Equipe: separa os simbolos por tabulacao como solicitado.
         for (int i = 0; i < alerta.length; i++) {
             String linha = "";
             for (int j = 0; j < alerta[i].length; j++) {
@@ -245,7 +219,6 @@ public class CidadeChuva {
     }
 
     public static int contarAlertas(boolean[][] alerta) {
-        // Equipe: conta cada trecho alagado uma unica vez.
         int quantidade = 0;
         for (int i = 0; i < alerta.length; i++) {
             for (int j = 0; j < alerta[i].length; j++) {
@@ -258,7 +231,6 @@ public class CidadeChuva {
     }
 
     public static int[] somarPorLinha(int[][] lamina) {
-        // Equipe: guarda no vetor a soma de agua de cada linha do bairro.
         int[] aguaPorLinha = new int[lamina.length];
         for (int i = 0; i < lamina.length; i++) {
             int soma = 0;
@@ -271,7 +243,6 @@ public class CidadeChuva {
     }
 
     public static int linhaCritica(int[] aguaPorLinha) {
-        // Equipe: em empate, mantem a primeira linha, de menor indice.
         int critica = 0;
         for (int i = 1; i < aguaPorLinha.length; i++) {
             if (aguaPorLinha[i] > aguaPorLinha[critica]) {
