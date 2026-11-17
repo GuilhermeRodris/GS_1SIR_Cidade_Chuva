@@ -1,3 +1,7 @@
+//Guilherme Rodrigues Santos – RM: 570134
+//Gustavo Enrique Donoso Collins – RM: 573443
+//Mateus Carrilho Soares Silva – RM: 572495
+
 import java.util.Scanner;
 import java.util.Random;
 
