@@ -109,7 +109,6 @@ public class CidadeChuva {
 
 //------------------------------ Utilitários de matrizes -----------------------------
     public static int[][] copiar(int[][] matriz) {
-        // Equipe: copia cada valor para impedir alterações na matriz original.
         int[][] copia = new int[matriz.length][matriz[0].length];
         for (int i = 0; i < matriz.length; i++) {
             for (int j = 0; j < matriz[i].length; j++) {
@@ -120,12 +119,10 @@ public class CidadeChuva {
     }
 
     public static boolean dentro(int i, int j, int n, int m) {
-        // Equipe: ignora vizinhos que ficam fora das bordas do bairro.
         return i >= 0 && i < n && j >= 0 && j < m;
     }
 
     public static void imprimir(int[][] matriz) {
-        // Equipe: monta cada linha antes de exibir, usando somente println.
         for (int i = 0; i < matriz.length; i++) {
             String linha = "";
             for (int j = 0; j < matriz[i].length; j++) {
@@ -139,7 +136,6 @@ public class CidadeChuva {
     }
 
     public static int somar(int[][] matriz) {
-        // Equipe: permite conferir a conservações da água em cada passo.
         int soma = 0;
         for (int i = 0; i < matriz.length; i++) {
             for (int j = 0; j < matriz[i].length; j++) {
